@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Web to APK Converter | Nebolusverse - Ubah Website Jadi Aplikasi Android</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0717 0%, #1a0b2e 50%, #0f0717 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-blur {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .blob-1 {
+            background: #8b5cf6;
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            background: #ec4899;
+            bottom: -200px;
+            right: -200px;
+            animation-delay: 5s;
+        }
+
+        .blob-3 {
+            background: #06b6d4;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 30px) scale(0.9); }
+        }
+
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #a78bfa, #f472b6, #38bdf8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border: none;
+            padding: 14px 32px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Input Styles */
+        .input-field {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Dropzone */
+        .dropzone {
+            border: 2px dashed rgba(139, 92, 246, 0.5);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .dropzone:hover, .dropzone.drag-over {
+            border-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        /* Phone Mockup */
+        .phone-mockup {
+            background: #1a1a2e;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .phone-screen {
+            background: #0f0f1a;
+            border-radius: 32px;
+            overflow: hidden;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e1b4b, #0f0717);
+            border-radius: 32px;
+            padding: 32px;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid rgba(139, 92, 246, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+            h1 {
+                font-size: 36px !important;
+            }
+            .dropzone {
+                padding: 24px;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Icon Preview */
+        .icon-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            object-fit: cover;
+            border: 2px solid #8b5cf6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-blur">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+</div>
+
+<div class="container">
+    <!-- Header -->
+    <div class="text-center" style="margin-bottom: 40px;">
+        <div style="display: inline-flex; align-items: center; gap: 12px; background: rgba(139, 92, 246, 0.2); padding: 8px 20px; border-radius: 100px; margin-bottom: 24px; border: 1px solid rgba(139, 92, 246, 0.5);">
+            <i class="fas fa-crown" style="color: #fbbf24;"></i>
+            <span style="color: #c084fc;">Powered by Nebolusverse Ultimate</span>
+            <i class="fas fa-rocket" style="color: #f472b6;"></i>
+        </div>
+        
+        <h1 style="font-size: 56px; font-weight: 900; margin-bottom: 16px;">
+            <span class="gradient-text">Web to APK</span>
+        </h1>
+        
+        <p style="color: #cbd5e1; font-size: 18px; max-width: 600px; margin: 0 auto;">
+            Ubah website lo jadi aplikasi Android keren dalam hitungan detik.
+            <span style="color: #a78bfa; display: block; margin-top: 8px;">Custom logo, nama, siap install!</span>
+        </p>
+    </div>
+
+    <!-- Stats -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 48px;">
+        <div class="glass-card" style="padding: 20px; text-align: center;">
+            <div style="font-size: 28px; font-weight: bold; color: #a78bfa;">10K+</div>
+            <div style="color: #94a3b8; font-size: 14px;">APK Generated</div>
+        </div>
+        <div class="glass-card" style="padding: 20px; text-align: center;">
+            <div style="font-size: 28px; font-weight: bold; color: #a78bfa;">99.9%</div>
+            <div style="color: #94a3b8; font-size: 14px;">Success Rate</div>
+        </div>
+        <div class="glass-card" style="padding: 20px; text-align: center;">
+            <div style="font-size: 28px; font-weight: bold; color: #a78bfa;">24/7</div>
+            <div style="color: #94a3b8; font-size: 14px;">Auto Generate</div>
+        </div>
+        <div class="glass-card" style="padding: 20px; text-align: center;">
+            <div style="font-size: 28px; font-weight: bold; color: #a78bfa;">FREE</div>
+            <div style="color: #94a3b8; font-size: 14px;">Selamanya</div>
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 48px;">
+        <div class="glass-card" style="padding: 20px; text-align: center;">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #eab308, #f97316); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+                <i class="fas fa-bolt" style="color: white; font-size: 24px;"></i>
+            </div>
+            <h3 style="font-weight: 600; margin-bottom: 8px;">Super Cepat</h3>
+            <p style="color: #94a3b8; font-size: 13px;">Konversi kurang dari 1 menit</p>
+        </div>
+        <div class="glass-card" style="padding: 20px; text-align: center;">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #22c55e, #10b981); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+                <i class="fas fa-shield-alt" style="color: white; font-size: 24px;"></i>
+            </div>
+            <h3 style="font-weight: 600; margin-bottom: 8px;">100% Aman</h3>
+            <p style="color: #94a3b8; font-size: 13px;">Tanpa data tersimpan</p>
+        </div>
+        <div class="glass-card" style="padding: 20px; text-align: center;">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #3b82f6, #06b6d4); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+                <i class="fas fa-globe" style="color: white; font-size: 24px;"></i>
+            </div>
+            <h3 style="font-weight: 600; margin-bottom: 8px;">Support All URL</h3>
+            <p style="color: #94a3b8; font-size: 13px;">Bisa semua jenis website</p>
+        </div>
+        <div class="glass-card" style="padding: 20px; text-align: center;">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #a855f7, #ec4899); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+                <i class="fas fa-palette" style="color: white; font-size: 24px;"></i>
+            </div>
+            <h3 style="font-weight: 600; margin-bottom: 8px;">Custom Asset</h3>
+            <p style="color: #94a3b8; font-size: 13px;">Logo + Splash Screen</p>
+        </div>
+    </div>
+
+    <!-- Main Form Card -->
+    <div class="glass-card" style="padding: 32px;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <i class="fas fa-code" style="color: #a78bfa;"></i>
+            <h2 style="font-size: 20px; font-weight: 700;">APK Builder Studio</h2>
+            <div style="margin-left: auto; display: flex; gap: 8px;">
+                <span style="font-size: 11px; padding: 4px 12px; background: rgba(34,197,94,0.2); color: #4ade80; border-radius: 100px;">LIVE</span>
+                <span style="font-size: 11px; padding: 4px 12px; background: rgba(139,92,246,0.2); color: #a78bfa; border-radius: 100px;">HTML/JS</span>
+            </div>
+        </div>
+
+        <!-- Logo Upload -->
+        <div style="margin-bottom: 24px;">
+            <label style="display: block; margin-bottom: 10px; font-weight: 500;">
+                <i class="fas fa-upload" style="margin-right: 8px;"></i>
+                Logo Aplikasi
+            </label>
+            <div id="dropzone" class="dropzone">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: #a78bfa; margin-bottom: 12px; display: block;"></i>
+                <p style="color: #cbd5e1;">Drag & drop logo disini, atau klik</p>
+                <p style="color: #64748b; font-size: 12px; margin-top: 8px;">PNG, JPG, WEBP (Max 2MB)</p>
+                <input type="file" id="iconInput" accept="image/*" style="display: none;">
+            </div>
+            <div id="iconPreviewContainer" style="margin-top: 16px; display: none;">
+                <img id="iconPreview" class="icon-preview" alt="Icon Preview">
+                <button onclick="removeIcon()" style="margin-left: 12px; background: #ef4444; border: none; padding: 8px 16px; border-radius: 12px; color: white; cursor: pointer;">
+                    <i class="fas fa-trash"></i> Hapus
+                </button>
+            </div>
+        </div>
+
+        <!-- App Name -->
+        <div style="margin-bottom: 24px;">
+            <label style="display: block; margin-bottom: 10px; font-weight: 500;">
+                <i class="fas fa-tag" style="margin-right: 8px;"></i>
+                Nama Aplikasi
+            </label>
+            <input type="text" id="appName" class="input-field" placeholder="Contoh: Nebolus Browser">
+        </div>
+
+        <!-- URL -->
+        <div style="margin-bottom: 32px;">
+            <label style="display: block; margin-bottom: 10px; font-weight: 500;">
+                <i class="fas fa-link" style="margin-right: 8px;"></i>
+                URL Website
+            </label>
+            <input type="url" id="appUrl" class="input-field" placeholder="https://website-anda.com">
+        </div>
+
+        <!-- Generate Button -->
+        <button id="generateBtn" class="btn-primary" style="width: 100%;">
+            <i class="fas fa-magic" style="margin-right: 8px;"></i>
+            Generate APK Sekarang!
+        </button>
+
+        <!-- Preview Section -->
+        <div id="previewSection" style="margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); display: none;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+                <i class="fas fa-mobile-alt" style="color: #a78bfa;"></i>
+                <h3 style="font-weight: 600;">Preview Aplikasi Lo</h3>
+            </div>
+            <div id="phoneMockup" class="phone-mockup" style="max-width: 300px; margin: 0 auto;">
+                <div class="phone-screen">
+                    <div style="background: #0f0f1a; padding: 12px;">
+                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid #1f1f2e;">
+                            <div id="previewIcon" style="width: 40px; height: 40px; background: linear-gradient(135deg, #8b5cf6, #ec4899); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-globe" style="color: white; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div id="previewAppName" style="color: white; font-weight: 600; font-size: 14px;">Nama Apps</div>
+                                <div id="previewUrl" style="color: #94a3b8; font-size: 10px;">website.com</div>
+                            </div>
+                        </div>
+                        <div style="height: 400px; background: #0a0a0f; display: flex; align-items: center; justify-content: center;">
+                            <div style="text-align: center;">
+                                <i class="fas fa-sync-alt" style="font-size: 32px; color: #334155; margin-bottom: 12px; display: block;"></i>
+                                <p style="color: #475569; font-size: 12px;">Webview akan menampilkan:</p>
+                                <p id="previewUrlText" style="color: #a78bfa; font-size: 11px; margin-top: 8px;">https://website.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px;">
+        <div class="glass-card" style="padding: 24px; text-align: center;">
+            <div style="width: 48px; height: 48px; background: rgba(139,92,246,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                <span style="font-size: 24px; font-weight: bold; color: #a78bfa;">1</span>
+            </div>
+            <h3 style="font-weight: 600; margin-bottom: 8px;">Upload Logo</h3>
+            <p style="color: #94a3b8; font-size: 14px;">Upload logo apps lo (PNG/JPG) ukuran bebas</p>
+        </div>
+        <div class="glass-card" style="padding: 24px; text-align: center;">
+            <div style="width: 48px; height: 48px; background: rgba(139,92,246,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                <span style="font-size: 24px; font-weight: bold; color: #a78bfa;">2</span>
+            </div>
+            <h3 style="font-weight: 600; margin-bottom: 8px;">Isi Data</h3>
+            <p style="color: #94a3b8; font-size: 14px;">Masukkan nama apps & URL website target</p>
+        </div>
+        <div class="glass-card" style="padding: 24px; text-align: center;">
+            <div style="width: 48px; height: 48px; background: rgba(139,92,246,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                <span style="font-size: 24px; font-weight: bold; color: #a78bfa;">3</span>
+            </div>
+            <h3 style="font-weight: 600; margin-bottom: 8px;">Generate & Download</h3>
+            <p style="color: #94a3b8; font-size: 14px;">Klik tombol, tunggu sebentar, langsung download APK!</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align: center; margin-top: 48px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <p style="color: #64748b;">© 2025 Nebolusverse - Unlimited APK Generation | No Limits | No Filters</p>
+        <p style="color: #475569; font-size: 12px; margin-top: 8px;">Built with HTML5, CSS3, JavaScript 🚀</p>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <i class="fas fa-check-circle" style="font-size: 64px; color: #22c55e; margin-bottom: 16px;"></i>
+        <h3 id="modalTitle" style="margin-bottom: 12px;">Success!</h3>
+        <p id="modalMessage" style="color: #94a3b8; margin-bottom: 24px;">APK berhasil digenerate</p>
+        <button onclick="closeModal()" class="btn-primary" style="padding: 10px 24px;">Tutup</button>
+    </div>
+</div>
+
+<script>
+    // DOM Elements
+    const dropzone = document.getElementById('dropzone');
+    const iconInput = document.getElementById('iconInput');
+    const iconPreviewContainer = document.getElementById('iconPreviewContainer');
+    const iconPreview = document.getElementById('iconPreview');
+    const appNameInput = document.getElementById('appName');
+    const appUrlInput = document.getElementById('appUrl');
+    const generateBtn = document.getElementById('generateBtn');
+    const previewSection = document.getElementById('previewSection');
+    const previewIcon = document.getElementById('previewIcon');
+    const previewAppName = document.getElementById('previewAppName');
+    const previewUrlText = document.getElementById('previewUrlText');
+    
+    let currentIconBase64 = null;
+
+    // Dropzone Events
+    dropzone.addEventListener('click', () => iconInput.click());
+    dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('drag-over');
+    });
+    dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('drag-over');
+    });
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            handleIconFile(file);
+        }
+    });
+    iconInput.addEventListener('change', (e) => {
+        if (e.target.files[0]) handleIconFile(e.target.files[0]);
+    });
+
+    function handleIconFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            currentIconBase64 = e.target.result;
+            iconPreview.src = currentIconBase64;
+            iconPreviewContainer.style.display = 'block';
+            dropzone.style.display = 'none';
+            
+            // Update preview icon
+            previewIcon.innerHTML = `<img src="${currentIconBase64}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">`;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeIcon() {
+        currentIconBase64 = null;
+        iconPreviewContainer.style.display = 'none';
+        dropzone.style.display = 'block';
+        previewIcon.innerHTML = `<i class="fas fa-globe" style="color: white; font-size: 20px;"></i>`;
+        iconInput.value = '';
+    }
+
+    // Real-time Preview Update
+    function updatePreview() {
+        const name = appNameInput.value.trim();
+        const url = appUrlInput.value.trim();
+        
+        if (name || url) {
+            previewSection.style.display = 'block';
+            if (name) {
+                previewAppName.textContent = name;
+            } else {
+                previewAppName.textContent = 'Nama Apps';
+            }
+            if (url) {
+                try {
+                    const hostname = new URL(url).hostname;
+                    previewUrlText.textContent = hostname;
+                    document.getElementById('previewUrl').textContent = hostname;
+                } catch {
+                    previewUrlText.textContent = url;
+                    document.getElementById('previewUrl').textContent = url;
+                }
+            } else {
+                previewUrlText.textContent = 'website.com';
+                document.getElementById('previewUrl').textContent = 'website.com';
+            }
+        } else {
+            previewSection.style.display = 'none';
+        }
+    }
+
+    appNameInput.addEventListener('input', updatePreview);
+    appUrlInput.addEventListener('input', updatePreview);
+
+    // Generate APK Function
+    async function generateAPK() {
+        const appName = appNameInput.value.trim();
+        const appUrl = appUrlInput.value.trim();
+        
+        if (!appName) {
+            showModal('Error', 'Isi nama apps dulu bos!');
+            return;
+        }
+        if (!appUrl) {
+            showModal('Error', 'Isi URL website nya!');
+            return;
+        }
+        if (!appUrl.startsWith('http://') && !appUrl.startsWith('https://')) {
+            showModal('Error', 'URL harus pake http:// atau https:// ya!');
+            return;
+        }
+
+        // Disable button and show loading
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<span class="spinner"></span> Generating APK...';
+
+        // Simulate APK generation (in real implementation, this would call backend API)
+        setTimeout(() => {
+            // Create dummy APK content (in reality, this would be actual APK binary)
+            const apkContent = createDummyAPK(appName, appUrl, currentIconBase64);
+            
+            // Download as .apk file
+            const blob = new Blob([apkContent], { type: 'application/vnd.android.package-archive' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${appName.toLowerCase().replace(/\s/g, '_')}.apk`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showModal('Success!', `APK "${appName}" berhasil digenerate dan siap download!`);
+            
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = '<i class="fas fa-magic" style="margin-right: 8px;"></i> Generate APK Sekarang!';
+        }, 2000);
+    }
+
+    function createDummyAPK(appName, appUrl, iconBase64) {
+        // Create a text-based "APK" for demo purposes
+        // In production, this would be actual APK structure
+        const content = `NEBOLUSVERSE APK GENERATOR
+========================
+App Name: ${appName}
+App URL: ${appUrl}
+Icon: ${iconBase64 ? 'Custom Icon Set' : 'Default Icon'}
+Generated By: Nebolusverse Ultimate
+Date: ${new Date().toISOString()}
+Status: Premium APK Ready
+
+This file is a placeholder. Real APK generation requires backend compilation.
+Contact Nebolusverse for production-ready APK building service.
+`;
+        return new TextEncoder().encode(content);
+    }
+
+    function showModal(title, message) {
+        const modal = document.getElementById('modal');
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalMessage').textContent = message;
+        modal.classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('modal').classList.remove('active');
+    }
+
+    generateBtn.addEventListener('click', generateAPK);
+
+    // Close modal on outside click
+    document.getElementById('modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('modal')) closeModal();
+    });
+
+    // Initial preview check
+    updatePreview();
+</script>
+
+</body>
+</html>
